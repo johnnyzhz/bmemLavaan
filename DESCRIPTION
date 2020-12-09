@@ -5,7 +5,7 @@ Version: 0.1
 Date: 2020-10-13
 Author: Shuigen Ming, Haotian Ma, Hong Zhang, Zhiyong Zhang, and Lijuan Wang
 Maintainer: Zhiyong Zhang <zhiyongzhang@nd.edu>
-Depends: R (>= 4), Amelia, MASS, snowfall
+Depends: R (>= 4.0), Amelia, MASS, snowfall
 Imports: lavaan, sem
 Description: Implemented methods for mediation analysis with missing data and non-normal data. For missing data, four methods are available: Listwise deletion, Pairwise deletion, Multiple imputation, and Two Stage Maximum Likelihood algorithm. For MI and TS-ML, auxiliary variables can be included. For handling non-normal data, bootstrap and two-stage robust methods are used.
 License: GPL-2
