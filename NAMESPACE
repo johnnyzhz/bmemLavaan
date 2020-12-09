@@ -26,7 +26,7 @@ importFrom("lavaan", "coef")
 importFrom("grDevices", "dev.new")
 importFrom("graphics", "hist", "lines", "par", "plot")
 importFrom("stats", "complete.cases", "cov", "density",
-           "deriv", "na.omit", "pchisq", "pnorm", "qchisq", "qnorm",
-           "quantile", "sd")
+"deriv", "na.omit", "pchisq", "pnorm", "qchisq", 
+"qnorm", "quantile", "sd")
 
 
