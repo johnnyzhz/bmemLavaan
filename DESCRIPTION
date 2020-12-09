@@ -3,7 +3,7 @@ Type: Package
 Title: Mediation Analysis with Missing Data and Non-normal Data
 Version: 0.1
 Date: 2020-10-13
-Author: Shuilan Ming, Haotian Ma, Hong Zhang, Zhiyong Zhang, and Lijuan Wang
+Author: Shuigen Ming, Haotian Ma, Hong Zhang, Zhiyong Zhang, and Lijuan Wang
 Maintainer: Zhiyong Zhang <zhiyongzhang@nd.edu>
 Depends: R (>= 4.0), Amelia, MASS, snowfall
 Imports: lavaan, sem

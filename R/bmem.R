@@ -1,10 +1,10 @@
 # package depended: lavaan, Amelia, parallel, snowfall
 
 
-bmem.moments<-function(x, type=0){ ##rest 
-  #0: listwise deletion
-  #1: pairwise deletion
-  x<-cbind(1, x)
+bmem.moments<-function(x, type=0){ 
+#0: listwise deletion
+#1: pairwise deletion
+x<-cbind(1, x)
   n<-nrow(x)
   p<-ncol(x)
   res<-matrix(NA, p, p)	
@@ -44,7 +44,7 @@ bmem.pair.cov<-function(x){
 
 bmem.sem<-function(x, ram, N, ...){
   ##x:cov matrix, ram:model
-  
+
   sem.res<-lavaan::sem(model = ram,sample.cov = x,sample.nobs = N, ...)
   
   lavpartable <- lavaan::partable(sem.res)
@@ -87,7 +87,7 @@ bmem.sobel.ind<-function(sem.object, ind){ ##rest
   ind.deriv<-deriv(ind.exp, par)
   first.deriv<-eval(ind.deriv, par.list)
   first.deriv<-attributes(first.deriv)$gradient
-  
+
   if (is.null(sem.object$cov)) {
     var.par<-sem.object$vcov[par,par]
   }else{
@@ -95,20 +95,20 @@ bmem.sobel.ind<-function(sem.object, ind){ ##rest
   }
   var.ind<-first.deriv%*%var.par%*%t(first.deriv)
   s.e.ind<-sqrt(var.ind)
-  
+
   res<-matrix(c(est.indirect, s.e.ind, est.indirect/s.e.ind), 1, 3)
   colnames(res)<-c('Estimate', 'S.E.', 'z-score')
   rownames(res)<-ind
   res
-}
+  }
 
 bmem.sobel<-function(x, ram,  ...){
   N<-nrow(x)
   temp.cov<-bmem.list.cov(x)
   sem.object<-lavaan::sem(model = ram,sample.cov = temp.cov,sample.nobs = N,...)
-  
+
   all.res <- summary(sem.object)$PE
-  
+
   invisible(list(estimates=all.res))
 }
 
@@ -960,13 +960,8 @@ bmem<-function(data, model, v, method='tsml', ci='bc', cl=.95, boot=1000, m=10, 
       ci.fit<-bmem.ci.bca(boot.est$boot.fit, boot.est$fit0, jack.est$jack.fit, cl)
     }
   }
-  cat('The bootstrap confidence intervals for parameter estimates\n')
-  print(ci.est)
   
-  cat('\nThe bootstrap confidence intervals for model fit indices\n')
   rownames(ci.fit)<-c('chisq', 'GFI','AGFI', 'RMSEA','NFI','NNFI','CFI','BIC','SRMR')
-  print(ci.fit)
-  cat('\nThe literature has suggested the use of Bollen-Stine bootstrap for model fit. To do so, use the function bmem.bs().\n')
   
   lavpartable <- boot.est$lavpartable[,c(2:4,7,10,11,14,15)]## to be written
   lavpartable[,"est"] <- ci.est[,"estimate"]
@@ -1214,7 +1209,7 @@ bmem.cov <- function(ram,obs.variables, debug=FALSE){
 }
 
 
-summary.bmem <- function(object, boot.cl=TRUE, estimates=TRUE,...){
+summary.bmem <- function(object, estimates=TRUE,...){
   par <- object$ci     ##list: (par), estimate, se.boot, 2.5%, 97.5%
   fit <- object$ci.fit ##list: (sta), estimate, se.boot, 2.5%, 97.5%
   infor <- object$infor ##list: samplesize, method, boot, sucboot, ci
@@ -1227,6 +1222,9 @@ summary.bmem <- function(object, boot.cl=TRUE, estimates=TRUE,...){
   lavpartable <- object$lavpartable
   est <- lavpartable$est   ##lavpartable:id,lhs,op,rhs,user,block,group,free,ustart,exo,label,plabel,start,est,se
   se  <- lavpartable$se
+  
+  lpro <- colnames(par)[3]
+  rpro <- colnames(par)[4] 
   
   cat("\n")
   t0.txt <- sprintf("Estimate method:                          ")
@@ -1248,55 +1246,6 @@ summary.bmem <- function(object, boot.cl=TRUE, estimates=TRUE,...){
   t0.txt <- sprintf("Type of confidence interval:              ")
   t1.txt <- sprintf("%s",infor$ci)
   cat(t0.txt,t1.txt, "\n", sep="")
-  
-  cat("\n")
-  
-  
-  if(boot.cl==FALSE){
-    
-    t0.txt <- sprintf("  %-40s", "Parameter")
-    t1.txt <- sprintf("  %10s", "Estimate")
-    cat(t0.txt, t1.txt, "\n", sep="")
-    
-    for (i in 1:npar) {
-      t0.txt <- sprintf("  %-40s", parname[i])  
-      t1.txt <- sprintf("  %10.3f", par[i,1])
-      cat(t0.txt, t1.txt, "\n", sep="")
-    }
-    
-    cat("\n")
-    
-    t0.txt <- sprintf("  %-40s", "Statistics")
-    t1.txt <- sprintf("  %10s", "Estimate")
-    cat(t0.txt, t1.txt, "\n", sep="")
-    
-    for (i in 1:nfit) {
-      t0.txt <- sprintf("  %-40s", staname[i])  
-      t1.txt <- sprintf("  %10.3f", fit[i,1])
-      cat(t0.txt, t1.txt, "\n", sep="")
-    }
-  }
-  
-  if(boot.cl==TRUE){
-    
-    lpro <- colnames(par)[3]
-    rpro <- colnames(par)[4]  ##confidence level 
-    t0.txt <- sprintf("confidence level: %s ", rpro)
-    cat(t0.txt, "\n", sep="")
-    cat("\n")
-    
-    t0.txt <- sprintf("  %-20s", "Parameter")
-    t1.txt <- sprintf("  %-20s", "Estimate")
-    t2.txt <- sprintf("  %s", "boot.cl")
-    cat(t0.txt, t1.txt, t2.txt, "\n", sep="")
-    
-    for (i in 1:npar) {
-      t0.txt <- sprintf("  %-20s", parname[i])  
-      t1.txt <- sprintf("  %-20.3f", par[i,1])
-      t2.txt <- sprintf("  (%.3f, %.3f)", par[i,3],par[i,4]) ##stop here
-      cat(t0.txt, t1.txt, t2.txt, "\n", sep="")
-    }
-  }
   
   cat("\n")
   t0.txt <- sprintf("Values of statistics:")
@@ -1531,5 +1480,5 @@ summary.bmem <- function(object, boot.cl=TRUE, estimates=TRUE,...){
     
   } # "if(estimates)" end
   
-} 
+}
 
