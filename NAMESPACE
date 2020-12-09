@@ -21,6 +21,7 @@ importFrom("lavaan", "parTable")
 importFrom("lavaan", "simulateData")
 importFrom("lavaan", "bootstrapLavaan")
 importFrom("lavaan", "lavInspect")
+importFrom("lavaan", "coef")
 
 importFrom("grDevices", "dev.new")
 importFrom("graphics", "hist", "lines", "par", "plot")
