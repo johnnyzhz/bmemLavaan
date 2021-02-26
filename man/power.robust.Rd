@@ -77,7 +77,7 @@ N<-50
 
 system.time(robust.non.normal<-power.robust(ex1model, N, 
  nrep=2000, parallel='multicore', skewness=c(-.3, -.7, 1.3), 
- kurtosis=c(1.5, 0, 5), ovnames=c('ME', 'HE', 'math'), ncore=8)
+ kurtosis=c(1.5, 0, 5), ovnames=c('ME', 'HE', 'math'), ncore=8))
 summary(robust.non.normal)
 }
 }
