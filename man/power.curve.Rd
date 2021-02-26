@@ -94,13 +94,12 @@ ex2model<-'
  ls ~~ start(3)*ls
  lt ~~ start(3)*lt
  ept ~~ start(3)*ept 
+ ind1 := a*b + c*b
 '
-
-indirect<-'ind1 := a*b + c*b'
 
 nobs <- seq(100, 2000, by=200)
 
-power.curve(model=ex2model, indirect=indirect, nobs=nobs, 
+power.curve(model=ex2model, nobs=nobs, 
 type='boot', parallel='multicore', ncore=60, ci='percent', 
 boot.type='simple', interactive=F)
 }
