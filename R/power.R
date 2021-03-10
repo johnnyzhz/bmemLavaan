@@ -357,7 +357,7 @@ power.basic<-function(model, nobs=100, nrep=1000, alpha=.95, skewness=NULL, kurt
     if (length(kurtosis)!=length(ovnames)) stop("The number of kurtosis is not equal to the number observed variables")	
     index<-match(ov, ovnames)
     kurtosis<-kurtosis[index]
-  }	
+  }
   
   cnames<-paste(temp.res.lavpartable$lhs[idx], temp.res.lavpartable$op[idx], temp.res.lavpartable$rhs[idx])
   out<-temp.res
@@ -418,6 +418,7 @@ power.basic<-function(model, nobs=100, nrep=1000, alpha=.95, skewness=NULL, kurt
   all.se<-do.call(rbind, lapply(res, "[[", 'temp.se'))
   all.cvg<-do.call(rbind, lapply(res, "[[", 'temp.cvg'))
   
+  snowfall::sfStop()
   options(old_options)	
   
   colnames(all.sig)<-cnames
@@ -536,6 +537,7 @@ power.robust<-function(model, nobs=100, nrep=1000, alpha=.95, skewness=NULL, kur
   all.se<-do.call(rbind, lapply(res, "[[", 'temp.se'))
   all.cvg<-do.call(rbind, lapply(res, "[[", 'temp.cvg'))
   
+  snowfall::sfStop()
   options(old_options)	
   
   colnames(all.sig)<-cnames
@@ -600,6 +602,8 @@ power.boot<-function(model, nobs=100, nrep=1000, nboot=1000, alpha=.95, skewness
     index<-match(ov, ovnames)
     kurtosis<-kurtosis[index]
   }
+  
+  cnames<-paste(temp.res.lavpartable$lhs[idx], temp.res.lavpartable$op[idx], temp.res.lavpartable$rhs[idx])
   
   ci.bc1<-function(x, b, cl=.95){
     n<-length(x)
@@ -716,13 +720,14 @@ power.boot<-function(model, nobs=100, nrep=1000, nboot=1000, alpha=.95, skewness
   all.se<-do.call(rbind, lapply(res, "[[", 'temp.se'))
   all.cvg<-do.call(rbind, lapply(res, "[[", 'temp.cvg'))
   
+  snowfall::sfStop()
   options(old_options)	
   
-  #colnames(all.sig)<-cnames
+  colnames(all.sig)<-cnames
   power<-apply(all.sig, 2, mean, na.rm=TRUE)
   power.se<-sqrt(power*(1-power)/apply(!is.na(all.sig), 2, sum))
   cvg<-apply(all.cvg, 2, mean, na.rm=TRUE)
-  info<-list(nobs=nobs, nrep=nrep, alpha=alpha, method="Normal", bootstrap=nboot)
+  info<-list(nobs=nobs, nrep=nrep, alpha=alpha, method="Bootstrap", bootstrap=nboot)
   print(power)
   object<-list(power=power, power.se=power.se, coverage=cvg, pop.value=par.value, results=list(estimates=all.par, se=all.se, all=res), info=info, out=temp.res, data=newdata)
   class(object)<-'power'
@@ -730,7 +735,7 @@ power.boot<-function(model, nobs=100, nrep=1000, nboot=1000, alpha=.95, skewness
 }
 
 
-power.curve<-function(model, nobs=100, type='basic', nrep=1000, nboot=1000, alpha=.95, skewness=NULL, kurtosis=NULL, ovnames=NULL,  ci='default', boot.type='default', se="default", estimator="default", parallel="no", ncore=1, interactive=TRUE, ...){		
+power.curve<-function(model, nobs=100, method='normal', nrep=1000, nboot=1000, alpha=.95, skewness=NULL, kurtosis=NULL, ovnames=NULL,  ci='default', boot.type='default', se="default", estimator="default", parallel="no", ncore=1, interactive=TRUE, ...){		
   if (missing(model)) stop("A model is needed.")	
   
   allpower<-NULL
@@ -738,14 +743,16 @@ power.curve<-function(model, nobs=100, type='basic', nrep=1000, nboot=1000, alph
   ## check whether nobs is a vector or not
   if (is.vector(nobs)){	
     for (N in nobs){
-      if (type == 'basic'){
+      if (method == 'normal'){
         ## sobel test based analysis
         indpower <- power.basic(model=model, nobs=N, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, estimator=estimator, parallel=parallel, ncore=ncore,  ...)			
       }else{
-        if (type == 'boot'){
+        if (method == 'boot'){
           indpower <- power.boot(model=model, nobs=N, nrep=nrep, nboot=nboot, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, ci=ci, boot.type=boot.type, estimator=estimator, parallel=parallel, ncore=ncore,  ...)	
         }else{
-          indpower <- power.robust(model=model, nobs=N, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, estimator=estimator, parallel=parallel, ncore=ncore,  ...)			
+          if (method == 'robust'){
+            indpower <- power.robust(model=model, nobs=N, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, estimator=estimator, parallel=parallel, ncore=ncore,  ...)			
+          }else{stop("Method must be 'normal', 'robust' or 'boot'.")}
         }
       }
       allpower<-rbind(allpower, indpower$power)
@@ -753,14 +760,16 @@ power.curve<-function(model, nobs=100, type='basic', nrep=1000, nboot=1000, alph
   }else{
     for (k in 1:nrow(nobs)){
       N <- nobs[k]
-      if (type == 'basic'){
+      if (method == 'basic'){
         ## sobel test based analysis
         indpower <- power.basic(model=model, nobs=N, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, estimator=estimator, parallel=parallel, ncore=ncore,  ...)			
       }else{
-        if (type == 'boot'){
+        if (method == 'boot'){
           indpower <- power.boot(model=model, nobs=N, nrep=nrep, nboot=nboot, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, ci=ci, boot.type=boot.type, estimator=estimator, parallel=parallel, ncore=ncore,  ...)	
         }else{
-          indpower <- power.robust(model=model, nobs=N, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, estimator=estimator, parallel=parallel, ncore=ncore,  ...)			
+          if (method == 'robust'){
+            indpower <- power.robust(model=model, nobs=N, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, se=se, estimator=estimator, parallel=parallel, ncore=ncore,  ...)			
+          }else{stop("Method must be 'normal', 'robust' or 'boot'.")}
         }
       }
       allpower<-rbind(allpower, indpower$power)
@@ -788,4 +797,21 @@ power.curve<-function(model, nobs=100, type='basic', nrep=1000, nboot=1000, alph
   invisible(allpower)
 }
 
+power.bmem<-function(model, method="normal", nobs=100, nrep=1000, nboot=1000, alpha=.95, skewness=NULL, kurtosis=NULL, ovnames=NULL, ci='default', boot.type='default', se="default", estimator="default", parallel="no", ncore=1, ...){		
+  if (missing(model)) stop("A model is needed.")	
+  
+  if (method == 'normal'){
+    power.basic(model = model, nobs=nobs, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames,parallel = parallel, se=se, estimator = estimator, ncore = ncore,...)
+  }else{
+    if (method == 'robust'){
+      power.robust(model = model, nobs = nobs, nrep = nrep,alpha = alpha, skewness = skewness, kurtosis = kurtosis, ovnames = ovnames, parallel = parallel, ncore = ncore,... = ...)
+    }
+    else{
+      if (method == 'boot'){
+        power.boot(model = model, nobs=nobs, nrep=nrep, alpha=alpha, skewness=skewness, kurtosis=kurtosis, ovnames=ovnames, ci=ci, boot.type = boot.type, parallel = parallel, se=se, estimator = estimator, ncore = ncore,...)
+      }else{stop("Method must be 'normal', 'robust' or 'boot'.")}
+    }
+  }
+
+}
 

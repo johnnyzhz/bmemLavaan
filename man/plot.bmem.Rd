@@ -27,5 +27,5 @@ Zhang, Z. & Wang, L. (2011) Four methods for mediation analysis with missing dat
 
 Zhang, Z. (2011) Robust mediation analysis with missing data and auxiliary variables.}
 \seealso{
-\code{\link{bmem}}, \code{\link{bmem.sobel}}, \code{\link{bmem.plot}}
+\code{\link{bmem}}
 }

@@ -27,8 +27,8 @@ bmem(data, model, v, method='tsml', ci='bc', cl=.95,
   \item{\dots}{Other options for \code{\link{sem}} function can be used.}
 }
 \details{
-The indirect effect can be specified using equations such as \code{a*b}, \code{a*b+c}, and \code{a*b*c+d*e+f}. A vector of indirect effects can be used \code{indirect=c('a*b', 'a*b+c')}.
-}
+The indirect effect can be specified using equations such as \code{a*b}, \code{a*b+c}, and \code{a*b*c+d*e+f}, which can be defined in 'model' parameter. }
+
 \value{
 The on-screen output includes the parameter estimates, bootstrap standard errors, and CIs.
 }
