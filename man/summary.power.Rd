@@ -13,7 +13,7 @@ This function is adpated from the \code{\link{lavaan}} summary function to put t
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
-Output from the function either \code{\link{power.basic}} or \code{\link{power.boot}}.
+Output from the function either \code{\link{power.bmem}}.
 }
 \item{...}{Other options}
 }

@@ -1,18 +1,18 @@
-\name{power.curve}
-\alias{power.curve}
+\name{power.bmem}
+\alias{power.bmem}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Generate a power curve
+Conducting power analysis
 }
 \description{
-Generate a power curve either based on Sobel test or bootstrap
+A comprehensive power analysis function, it can conduct power analysis based on normal, bootstrap and robust Huber-type confidence intervals.
 }
 \usage{
-power.curve(model, nobs=100, method='normal', nrep=1000, 
-nboot=1000, alpha=.95, skewness=NULL, kurtosis=NULL, ovnames=NULL,  
+power.bmem(model, method="normal", nobs, nrep = 1000, nboot = 1000, 
+alpha = 0.95, skewness = NULL, kurtosis = NULL, ovnames = NULL,  
 ci='default', boot.type='default', 
-se="default", estimator="default", parallel="no", 
-ncore=1, interactive=TRUE, ...)
+se = "default", estimator = "default", parallel = "no", 
+ncore = 1,  ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,12 +32,12 @@ abc := a*b + c
 }
   \item{method}{Type of confidence intervals based on. Must be "normal", "boot" or "robust", which correspond to the normal, bootstrap or robust Huber-type confidence interval, respectively.}
   \item{nobs}{
-Number of observations for power analysis. It is typically should be a vector for single group analysis. For multiple group analysis, it should be a matrix.
+Number of observations for power analysis. If it is a vector, multiple group analysis will be conducted.
 }
   \item{nrep}{
 Number of replications for Monte Carlo simulation. At least 1,000 is recommended.
 }
-\item{nboot}{Number of bootstraps to conduct.}
+\item{nboot}{Number of bootstrap replicates. It's only required when bootstrap method is used.}
   \item{alpha}{
 The alpha level is used to obtain the confidence interval for model parameters.
 }
@@ -60,39 +60,36 @@ Estimation methods to be used here.
 Parallel methods, snow or multicore, can be used here. 
 }
   \item{ncore}{
-Number of cores to be used in parallel. By default, the maximum number of cores are used.
+Number of cores to be used in parallel.
 }
-\item{ci}{Type of bootstrap confidence intervals. By default, the percentile one is used. To get the bias-corrected one, use ci='BC'}
-\item{boot.type}{Type of bootstrap method. By default, the nonparametric one is used. Changing it to "BS" to use the Bollen-Stine method.}
-\item{interactive}{Whether to get the figure interactively.}
+\item{ci}{Type of bootstrap confidence intervals. By default, the percentile one is used. otherwise get the bias-corrected one. It's only required when bootstrap method is used.}
+\item{boot.type}{Type of bootstrap method. By default, the nonparametric one is used. Changing it to "BS" to use the Bollen-Stine method. It's only required when bootstrap method is used.}
   \item{\dots}{
 Other named arguments for lavaan can be passed here.
 }
 }
 
+\value{
+\item{power}{power for all parameters and required ones in the model}
+\item{coverage}{coverage probability}
+\item{pop.value}{Population parameter values}
+\item{results}{A list to give all intermediate results}
+\item{data}{The last data set generated for checking purpose}
+}
 
 \examples{
 \dontrun{
-ex2model<-'
- ept ~ start(.4)*hvltt + b*hvltt + start(0)*age + start(0)*edu + start(2)*R
- hvltt ~ start(-.35)*age + a*age + c*edu + start(.5)*edu
- R ~ start(-.06)*age + start(.2)*edu
- R =~ 1*ws + start(.8)*ls + start(.5)*lt
- age ~~ start(30)*age
- edu ~~ start(8)*edu
- age ~~ start(-2.8)*edu
- hvltt ~~ start(23)*hvltt
- R ~~ start(14)*R
- ws ~~ start(3)*ws
- ls ~~ start(3)*ls
- lt ~~ start(3)*lt
- ept ~~ start(3)*ept 
- ind1 := a*b + c*b
+ex1model<-'
+math ~ c*ME+start(0)*ME + b*HE+start(0.39)*HE
+HE ~ a*ME+start(0.39)*ME
+ab:=a*b
 '
 
-nobs <- seq(100, 2000, by=200)
+N<-50
 
-power.curve(model=ex2model, nobs=nobs, method='boot',
-parallel='multicore', ncore=60, interactive=F)
+system.time(non.normal<-power.bmem(ex1model, method = "normal", N, 
+ nrep=2000, parallel='multicore', skewness=c(-.3, -.7, 1.3), 
+ kurtosis=c(1.5, 0, 5), ovnames=c('ME', 'HE', 'math'), ncore=8))
+summary(non.normal)
 }
 }

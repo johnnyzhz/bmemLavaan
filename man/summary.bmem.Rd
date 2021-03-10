@@ -2,8 +2,8 @@
 \alias{summary.bmem}
 \alias{summary}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Calculate bootstrap confidence intervals of parameters and values of some statistics}
-\description{Calculate bootstrap confidence intervals of parameters and values of some statistics}
+\title{Sumarize the results of function 'bmem'}
+\description{Sumarize the results of function 'bmem'}
 \usage{
 \method{summary}{bmem}(object, estimates=TRUE,...)
 }
